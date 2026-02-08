@@ -14,13 +14,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Instalar pnpm
-        uses: pnpm/actions-setup@v4
-        with: # Corregido: era 'whith'
-          version: 10
-      
+        uses: pnpm/action-setup@v4 
+        with:
+          version: 9 
+
       - name: Configurar Node.js
         uses: actions/setup-node@v4
-        with: # Corregido: era 'whith'
+        with: 
           node-version: '20'
           cache: 'pnpm'
 
@@ -30,10 +30,8 @@ jobs:
       - name: Revisamos calidad lint
         run: pnpm lint
 
-      # --- PASO CRUCIAL PARA NEXT.JS ---
       - name: Verificar Build
         run: pnpm build
         env:
-          # Necesitas pasar estas variables para que el build no falle
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
