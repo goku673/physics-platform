@@ -4,7 +4,7 @@ on:
   push:
     branches: ['main', 'develop', 'ft/*']
   pull_request:
-    branches: ['main', 'dev']
+    branches: ['main', 'develop']
 
 jobs: 
   check-code: #importante para configurar reglas en la rama "require status checks to pass"
