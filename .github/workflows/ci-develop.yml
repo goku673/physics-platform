@@ -1,0 +1,37 @@
+name: CI-develop
+
+on:
+  push:
+    branches: ['main', 'develop', 'ft/*']
+  pull_request:
+    branches: ['main', 'develop']
+
+jobs: 
+  check-code: #importante para configurar reglas en la rama "require status checks to pass"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bajar codigo
+        uses: actions/checkout@v4
+
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v4 
+        with:
+          version: 9 
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with: 
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Revisamos calidad lint
+        run: pnpm lint
+
+      - name: Verificar Build
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}

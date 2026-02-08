@@ -1,0 +1,2 @@
+pnpm exec lint-staged
+#los test no todavia no configurados
