@@ -3,13 +3,22 @@
 -- Create profiles table
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  username text,
+  username varchar(20) not null,
   avatar_url text,
   level integer default 1,
   total_points integer default 0,
   streak integer default 0,
-  created_at timestamp default now()
+  created_at timestamp default now(),
+  constraint username_format
+  check (username ~ '^[a-zA-Z0-9]{3,20}$'),
+  constraint username_not_reserved
+  check (lower(username) not in ('admin', 'root', 'support', 'system'))
+
 );
+
+create unique index if not exists idx_profiles_username_lower
+on public.profiles (lower(username));
+
 
 -- Create progress table
 create table if not exists public.progress (
