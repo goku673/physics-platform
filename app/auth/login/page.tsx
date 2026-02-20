@@ -16,7 +16,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export default function Page() {
-  const [email, setEmail] = useState('')
+  const [tab, setTab] = useState<'student' | 'teacher'>('student') // Rol seleccionado
+  const [username, setUsername] = useState('') // Solo pedimos username
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -28,15 +29,13 @@ export default function Page() {
     setIsLoading(true)
     setError(null)
 
+    // Generar email automáticamente
+    const email = `${username}@${tab === 'student' ? 'estudiante.com' : 'docente.com'}`
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          emailRedirectTo:
-            process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-            `${window.location.origin}/protected`,
-        },
       })
       if (error) throw error
       router.push('/protected')
@@ -50,28 +49,51 @@ export default function Page() {
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
+          {/* Selector de rol */}
+          <div className="flex border-b border-gray-200 mb-4">
+            <button
+              className={`flex-1 py-2 text-center ${
+                tab === 'student' ? 'border-b-2 border-blue-500 font-semibold' : ''
+              }`}
+              onClick={() => setTab('student')}
+            >
+              Estudiante
+            </button>
+            <button
+              className={`flex-1 py-2 text-center ${
+                tab === 'teacher' ? 'border-b-2 border-blue-500 font-semibold' : ''
+              }`}
+              onClick={() => setTab('teacher')}
+            >
+              Docente
+            </button>
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Login</CardTitle>
-              <CardDescription>
-                Enter your email below to login to your account
-              </CardDescription>
+              <CardTitle className="text-2xl">Login {tab === 'student' ? 'Estudiante' : 'Docente'}</CardTitle>
+              <CardDescription>Ingresa tu usuario y contraseña</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleLogin}>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="username">Usuario</Label>
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
+                      id="username"
+                      type="text"
+                      placeholder="user1"
                       required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                     />
+                    <p className="text-sm text-gray-500">
+                      Tu correo será: {username || 'user'}@
+                      {tab === 'student' ? 'estudiante.com' : 'docente.com'}
+                    </p>
                   </div>
+
                   <div className="grid gap-2">
                     <Label htmlFor="password">Password</Label>
                     <Input
@@ -82,18 +104,18 @@ export default function Page() {
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
+
                   {error && <p className="text-sm text-red-500">{error}</p>}
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Logging in...' : 'Login'}
+                    {isLoading ? 'Iniciando sesión...' : 'Login'}
                   </Button>
                 </div>
+
                 <div className="mt-4 text-center text-sm">
-                  Don&apos;t have an account?{' '}
-                  <Link
-                    href="/auth/sign-up"
-                    className="underline underline-offset-4"
-                  >
-                    Sign up
+                  ¿No tienes cuenta?{' '}
+                  <Link href="/auth/sign-up" className="underline underline-offset-4">
+                    Regístrate
                   </Link>
                 </div>
               </form>

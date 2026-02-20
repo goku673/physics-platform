@@ -16,6 +16,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export default function Page() {
+  const [tab, setTab]= useState<'student' | 'teacher'>('student')
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [repeatPassword, setRepeatPassword] = useState('')
@@ -34,6 +36,7 @@ export default function Page() {
       setIsLoading(false)
       return
     }
+    const email = `${username}@${tab === 'student' ? 'estudiante.com' : 'docente.com'}`
 
     try {
       const { error } = await supabase.auth.signUp({
@@ -54,33 +57,56 @@ export default function Page() {
     }
   }
 
-  return (
+   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
+          {/* PESTAÑAS */}
+          <div className="flex border-b border-gray-200">
+            <button
+              className={`flex-1 py-2 text-center ${
+                tab === 'student' ? 'border-b-2 border-blue-500 font-semibold' : ''
+              }`}
+              onClick={() => setTab('student')}
+            >
+              Estudiante
+            </button>
+            <button
+              className={`flex-1 py-2 text-center ${
+                tab === 'teacher' ? 'border-b-2 border-blue-500 font-semibold' : ''
+              }`}
+              onClick={() => setTab('teacher')}
+            >
+              Docente
+            </button>
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Sign up</CardTitle>
-              <CardDescription>Create a new account</CardDescription>
+              <CardTitle className="text-2xl">Registro {tab === 'student' ? 'Estudiante' : 'Docente'}</CardTitle>
+              <CardDescription>Crea una nueva cuenta</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSignUp}>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="username">Nombre de usuario</Label>
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
+                      id="username"
+                      type="text"
+                      placeholder="user1"
                       required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                     />
+                    <p className="text-sm text-gray-500">
+                      Tu correo será: {username || 'user'}@
+                      {tab === 'student' ? 'estudiante.com' : 'docente.com'}
+                    </p>
                   </div>
+
                   <div className="grid gap-2">
-                    <div className="flex items-center">
-                      <Label htmlFor="password">Password</Label>
-                    </div>
+                    <Label htmlFor="password">Password</Label>
                     <Input
                       id="password"
                       type="password"
@@ -90,9 +116,7 @@ export default function Page() {
                     />
                   </div>
                   <div className="grid gap-2">
-                    <div className="flex items-center">
-                      <Label htmlFor="repeat-password">Repeat Password</Label>
-                    </div>
+                    <Label htmlFor="repeat-password">Repeat Password</Label>
                     <Input
                       id="repeat-password"
                       type="password"
@@ -101,18 +125,18 @@ export default function Page() {
                       onChange={(e) => setRepeatPassword(e.target.value)}
                     />
                   </div>
+
                   {error && <p className="text-sm text-red-500">{error}</p>}
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Creating an account...' : 'Sign up'}
+                    {isLoading ? 'Creando cuenta...' : 'Registrarse'}
                   </Button>
                 </div>
+
                 <div className="mt-4 text-center text-sm">
-                  Already have an account?{' '}
-                  <Link
-                    href="/auth/login"
-                    className="underline underline-offset-4"
-                  >
-                    Login
+                  ¿Ya tienes cuenta?{' '}
+                  <Link href="/auth/login" className="underline underline-offset-4">
+                    Iniciar sesión
                   </Link>
                 </div>
               </form>
